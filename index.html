@@ -316,6 +316,67 @@
             border-top: 1px solid #eee;
         }
 
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #777;
+        }
+
+        .close-btn:hover {
+            color: var(--danger);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -343,8 +404,8 @@
                 </div>
                 <div class="wallet-info">
                     <i class="fab fa-ethereum"></i>
-                    <span class="wallet-address">0x742...d35E</span>
-                    <span class="wallet-balance">2.45 ETH</span>
+                    <span class="wallet-address">Connect Wallet</span>
+                    <span class="wallet-balance">0 ETH</span>
                 </div>
             </div>
         </div>
@@ -355,49 +416,10 @@
             <div class="card">
                 <div class="card-header">
                     <h2 class="card-title"><i class="fas fa-users"></i> Group Members</h2>
-                    <button class="btn"><i class="fas fa-plus"></i> Add Member</button>
+                    <button class="btn" id="add-member-btn"><i class="fas fa-plus"></i> Add Member</button>
                 </div>
-                <ul class="member-list">
-                    <li class="member-item">
-                        <div class="member-info">
-                            <div class="member-avatar">JD</div>
-                            <div class="member-details">
-                                <h4>John Doe</h4>
-                                <p>Next payout: 15 Oct 2023</p>
-                            </div>
-                        </div>
-                        <span class="member-status status-paid">Paid</span>
-                    </li>
-                    <li class="member-item">
-                        <div class="member-info">
-                            <div class="member-avatar">AS</div>
-                            <div class="member-details">
-                                <h4>Alice Smith</h4>
-                                <p>Next payout: 22 Oct 2023</p>
-                            </div>
-                        </div>
-                        <span class="member-status status-pending">Pending</span>
-                    </li>
-                    <li class="member-item">
-                        <div class="member-info">
-                            <div class="member-avatar">RJ</div>
-                            <div class="member-details">
-                                <h4>Robert Johnson</h4>
-                                <p>Next payout: 29 Oct 2023</p>
-                            </div>
-                        </div>
-                        <span class="member-status status-default">Default</span>
-                    </li>
-                    <li class="member-item">
-                        <div class="member-info">
-                            <div class="member-avatar">MW</div>
-                            <div class="member-details">
-                                <h4>Maria Williams</h4>
-                                <p>Next payout: 5 Nov 2023</p>
-                            </div>
-                        </div>
-                        <span class="member-status status-paid">Paid</span>
-                    </li>
+                <ul class="member-list" id="member-list">
+                    <!-- Members will be dynamically added here -->
                 </ul>
             </div>
 
@@ -413,24 +435,21 @@
                     <label for="recipient">Recipient</label>
                     <select id="recipient">
                         <option value="">Select a member</option>
-                        <option value="1">John Doe</option>
-                        <option value="2">Alice Smith</option>
-                        <option value="3">Robert Johnson</option>
-                        <option value="4">Maria Williams</option>
+                        <!-- Options will be dynamically added -->
                     </select>
                 </div>
                 <button class="btn btn-success" id="send-contribution"><i class="fas fa-paper-plane"></i> Send Contribution</button>
                 
-                <div class="ethereum-status connected">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Ethereum network connected</span>
+                <div class="ethereum-status" id="ethereum-status">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Connect to Ethereum wallet</span>
                 </div>
             </div>
 
             <div class="card transaction-history">
                 <div class="card-header">
                     <h2 class="card-title"><i class="fas fa-history"></i> Transaction History</h2>
-                    <button class="btn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    <button class="btn" id="refresh-btn"><i class="fas fa-sync-alt"></i> Refresh</button>
                 </div>
                 <table class="transaction-table">
                     <thead>
@@ -443,41 +462,36 @@
                             <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>10 Oct 2023</td>
-                            <td>Monthly Contribution</td>
-                            <td>John Doe</td>
-                            <td>Alice Smith</td>
-                            <td class="amount positive">+0.1 ETH</td>
-                            <td><span class="member-status status-paid">Completed</span></td>
-                        </tr>
-                        <tr>
-                            <td>03 Oct 2023</td>
-                            <td>Monthly Contribution</td>
-                            <td>Maria Williams</td>
-                            <td>John Doe</td>
-                            <td class="amount positive">+0.1 ETH</td>
-                            <td><span class="member-status status-paid">Completed</span></td>
-                        </tr>
-                        <tr>
-                            <td>26 Sep 2023</td>
-                            <td>Monthly Contribution</td>
-                            <td>Robert Johnson</td>
-                            <td>Maria Williams</td>
-                            <td class="amount negative">-0.1 ETH</td>
-                            <td><span class="member-status status-default">Failed</span></td>
-                        </tr>
-                        <tr>
-                            <td>19 Sep 2023</td>
-                            <td>Monthly Contribution</td>
-                            <td>Alice Smith</td>
-                            <td>Robert Johnson</td>
-                            <td class="amount positive">+0.1 ETH</td>
-                            <td><span class="member-status status-paid">Completed</span></td>
-                        </tr>
+                    <tbody id="transaction-body">
+                        <!-- Transactions will be dynamically added here -->
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Member Modal -->
+    <div class="modal" id="add-member-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Member</h3>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="member-name">Full Name</label>
+                <input type="text" id="member-name" placeholder="Enter member's full name">
+            </div>
+            <div class="form-group">
+                <label for="member-email">Email Address</label>
+                <input type="email" id="member-email" placeholder="Enter member's email">
+            </div>
+            <div class="form-group">
+                <label for="member-wallet">Ethereum Wallet Address</label>
+                <input type="text" id="member-wallet" placeholder="Enter member's wallet address">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="cancel-add-member">Cancel</button>
+                <button class="btn btn-success" id="save-member">Save Member</button>
             </div>
         </div>
     </div>
@@ -489,18 +503,263 @@
     </footer>
 
     <script>
+        // Application State
+        const state = {
+            members: [
+                { id: 1, name: "John Doe", email: "john@example.com", wallet: "0x742d35Ef4f6B1990d35E", status: "paid", nextPayout: "15 Oct 2023" },
+                { id: 2, name: "Alice Smith", email: "alice@example.com", wallet: "0x8ba1f109551bD432803", status: "pending", nextPayout: "22 Oct 2023" },
+                { id: 3, name: "Robert Johnson", email: "robert@example.com", wallet: "0xEF2E6b4F8b5A5e5e5e5", status: "default", nextPayout: "29 Oct 2023" },
+                { id: 4, name: "Maria Williams", email: "maria@example.com", wallet: "0x9C8B6A7b4C3d2e1f0a9", status: "paid", nextPayout: "5 Nov 2023" }
+            ],
+            transactions: [
+                { id: 1, date: "10 Oct 2023", description: "Monthly Contribution", from: "John Doe", to: "Alice Smith", amount: 0.1, status: "completed" },
+                { id: 2, date: "03 Oct 2023", description: "Monthly Contribution", from: "Maria Williams", to: "John Doe", amount: 0.1, status: "completed" },
+                { id: 3, date: "26 Sep 2023", description: "Monthly Contribution", from: "Robert Johnson", to: "Maria Williams", amount: 0.1, status: "failed" },
+                { id: 4, date: "19 Sep 2023", description: "Monthly Contribution", from: "Alice Smith", to: "Robert Johnson", amount: 0.1, status: "completed" }
+            ],
+            nextMemberId: 5,
+            nextTransactionId: 5
+        };
+
+        // DOM Elements
+        const memberList = document.getElementById('member-list');
+        const transactionBody = document.getElementById('transaction-body');
+        const recipientSelect = document.getElementById('recipient');
+        const addMemberBtn = document.getElementById('add-member-btn');
+        const addMemberModal = document.getElementById('add-member-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const cancelAddMemberBtn = document.getElementById('cancel-add-member');
+        const saveMemberBtn = document.getElementById('save-member');
+        const sendContributionBtn = document.getElementById('send-contribution');
+        const refreshBtn = document.getElementById('refresh-btn');
+        const ethereumStatus = document.getElementById('ethereum-status');
+
         // Ethereum Integration
         let web3;
         let userAccount;
 
-        // Check if Web3 is available (MetaMask or other Ethereum wallet)
-        if (typeof window.ethereum !== 'undefined') {
-            web3 = new Web3(window.ethereum);
-            console.log('Web3 detected!');
-        } else {
-            console.log('No Web3 detected. Please install MetaMask.');
-            document.querySelector('.ethereum-status').className = 'ethereum-status disconnected';
-            document.querySelector('.ethereum-status').innerHTML = '<i class="fas fa-exclamation-circle"></i><span>No Ethereum wallet detected</span>';
+        // Initialize the application
+        function initApp() {
+            renderMembers();
+            renderTransactions();
+            populateRecipientSelect();
+            setupEventListeners();
+            initEthereum();
+        }
+
+        // Render members list
+        function renderMembers() {
+            memberList.innerHTML = '';
+            state.members.forEach(member => {
+                const statusClass = `status-${member.status}`;
+                const initials = member.name.split(' ').map(n => n[0]).join('');
+                
+                const memberItem = document.createElement('li');
+                memberItem.className = 'member-item';
+                memberItem.innerHTML = `
+                    <div class="member-info">
+                        <div class="member-avatar">${initials}</div>
+                        <div class="member-details">
+                            <h4>${member.name}</h4>
+                            <p>Next payout: ${member.nextPayout}</p>
+                        </div>
+                    </div>
+                    <span class="member-status ${statusClass}">${member.status.charAt(0).toUpperCase() + member.status.slice(1)}</span>
+                `;
+                memberList.appendChild(memberItem);
+            });
+        }
+
+        // Render transaction history
+        function renderTransactions() {
+            transactionBody.innerHTML = '';
+            state.transactions.forEach(transaction => {
+                const amountClass = transaction.status === 'failed' ? 'negative' : 'positive';
+                const statusClass = `status-${transaction.status === 'completed' ? 'paid' : 'default'}`;
+                const statusText = transaction.status === 'completed' ? 'Completed' : 'Failed';
+                
+                const transactionRow = document.createElement('tr');
+                transactionRow.innerHTML = `
+                    <td>${transaction.date}</td>
+                    <td>${transaction.description}</td>
+                    <td>${transaction.from}</td>
+                    <td>${transaction.to}</td>
+                    <td class="amount ${amountClass}">${transaction.amount} ETH</td>
+                    <td><span class="member-status ${statusClass}">${statusText}</span></td>
+                `;
+                transactionBody.appendChild(transactionRow);
+            });
+        }
+
+        // Populate recipient select dropdown
+        function populateRecipientSelect() {
+            // Clear existing options except the first one
+            while (recipientSelect.children.length > 1) {
+                recipientSelect.removeChild(recipientSelect.lastChild);
+            }
+            
+            // Add members as options
+            state.members.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member.id;
+                option.textContent = member.name;
+                recipientSelect.appendChild(option);
+            });
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            addMemberBtn.addEventListener('click', () => {
+                addMemberModal.style.display = 'flex';
+            });
+
+            closeModalBtn.addEventListener('click', () => {
+                addMemberModal.style.display = 'none';
+            });
+
+            cancelAddMemberBtn.addEventListener('click', () => {
+                addMemberModal.style.display = 'none';
+            });
+
+            saveMemberBtn.addEventListener('click', addNewMember);
+
+            sendContributionBtn.addEventListener('click', sendContribution);
+
+            refreshBtn.addEventListener('click', refreshData);
+        }
+
+        // Add new member
+        function addNewMember() {
+            const name = document.getElementById('member-name').value;
+            const email = document.getElementById('member-email').value;
+            const wallet = document.getElementById('member-wallet').value;
+            
+            if (!name || !email || !wallet) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Calculate next payout date (30 days from now)
+            const nextPayoutDate = new Date();
+            nextPayoutDate.setDate(nextPayoutDate.getDate() + 30);
+            const nextPayout = nextPayoutDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+            
+            // Add new member to state
+            const newMember = {
+                id: state.nextMemberId++,
+                name,
+                email,
+                wallet,
+                status: 'pending',
+                nextPayout
+            };
+            
+            state.members.push(newMember);
+            
+            // Update UI
+            renderMembers();
+            populateRecipientSelect();
+            
+            // Reset form and close modal
+            document.getElementById('member-name').value = '';
+            document.getElementById('member-email').value = '';
+            document.getElementById('member-wallet').value = '';
+            addMemberModal.style.display = 'none';
+            
+            alert('Member added successfully!');
+        }
+
+        // Send contribution
+        function sendContribution() {
+            const amount = document.getElementById('amount').value;
+            const recipientId = document.getElementById('recipient').value;
+            
+            if (!amount || !recipientId) {
+                alert('Please enter amount and select recipient');
+                return;
+            }
+            
+            if (!userAccount) {
+                alert('Please connect your Ethereum wallet first');
+                return;
+            }
+            
+            const recipient = state.members.find(m => m.id == recipientId);
+            
+            // In a real app, you would send the transaction to the blockchain
+            // For demo purposes, we'll simulate it
+            simulateTransaction(amount, recipient);
+        }
+
+        // Simulate transaction (for demo purposes)
+        function simulateTransaction(amount, recipient) {
+            // Show loading state
+            sendContributionBtn.disabled = true;
+            sendContributionBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            
+            // Simulate blockchain processing delay
+            setTimeout(() => {
+                // Add transaction to state
+                const newTransaction = {
+                    id: state.nextTransactionId++,
+                    date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+                    description: 'Monthly Contribution',
+                    from: 'You',
+                    to: recipient.name,
+                    amount: parseFloat(amount),
+                    status: 'completed'
+                };
+                
+                state.transactions.unshift(newTransaction);
+                
+                // Update UI
+                renderTransactions();
+                
+                // Reset form
+                document.getElementById('amount').value = '';
+                document.getElementById('recipient').value = '';
+                
+                // Reset button
+                sendContributionBtn.disabled = false;
+                sendContributionBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Send Contribution';
+                
+                alert(`Successfully sent ${amount} ETH to ${recipient.name}`);
+            }, 2000);
+        }
+
+        // Refresh data
+        function refreshData() {
+            // Show loading state
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                // In a real app, you would fetch updated data from the blockchain
+                // For demo, we'll just update the wallet balance if connected
+                if (userAccount) {
+                    updateWalletBalance();
+                }
+                
+                // Reset button
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh';
+                
+                alert('Data refreshed successfully!');
+            }, 1500);
+        }
+
+        // Ethereum Integration Functions
+        function initEthereum() {
+            // Check if Web3 is available (MetaMask or other Ethereum wallet)
+            if (typeof window.ethereum !== 'undefined') {
+                web3 = new Web3(window.ethereum);
+                console.log('Web3 detected!');
+                
+                // Try to connect automatically
+                connectWallet();
+            } else {
+                console.log('No Web3 detected. Please install MetaMask.');
+                updateEthereumStatus(false, 'No Ethereum wallet detected. Please install MetaMask.');
+            }
         }
 
         // Connect to Ethereum wallet
@@ -516,66 +775,45 @@
                         userAccount.substring(0, 5) + '...' + userAccount.substring(userAccount.length - 4);
                     
                     // Get account balance
-                    const balance = await web3.eth.getBalance(userAccount);
-                    const etherBalance = web3.utils.fromWei(balance, 'ether');
-                    document.querySelector('.wallet-balance').textContent = parseFloat(etherBalance).toFixed(2) + ' ETH';
+                    await updateWalletBalance();
+                    
+                    updateEthereumStatus(true, 'Ethereum network connected');
                     
                     console.log('Connected to account:', userAccount);
                     
                 } catch (error) {
                     console.error('User denied account access');
+                    updateEthereumStatus(false, 'Please connect your Ethereum wallet');
                 }
             }
         }
 
-        // Send transaction function
-        async function sendContribution() {
-            const amount = document.getElementById('amount').value;
-            const recipient = document.getElementById('recipient').value;
-            
-            if (!amount || !recipient) {
-                alert('Please enter amount and select recipient');
-                return;
-            }
-            
-            if (!userAccount) {
-                alert('Please connect your wallet first');
-                return;
-            }
-            
-            // In a real app, you would have the recipient's Ethereum address
-            // For demo purposes, we'll use a placeholder
-            const recipientAddress = '0x742d35Ef4f6B1990d35E...'; 
-            
-            try {
-                // Convert amount to wei
-                const amountInWei = web3.utils.toWei(amount, 'ether');
-                
-                // Send transaction
-                const transaction = await web3.eth.sendTransaction({
-                    from: userAccount,
-                    to: recipientAddress,
-                    value: amountInWei
-                });
-                
-                console.log('Transaction successful:', transaction);
-                alert('Contribution sent successfully!');
-                
-                // Reset form
-                document.getElementById('amount').value = '';
-                document.getElementById('recipient').value = '';
-                
-            } catch (error) {
-                console.error('Transaction failed:', error);
-                alert('Transaction failed. Please try again.');
+        // Update wallet balance
+        async function updateWalletBalance() {
+            if (userAccount && web3) {
+                try {
+                    const balance = await web3.eth.getBalance(userAccount);
+                    const etherBalance = web3.utils.fromWei(balance, 'ether');
+                    document.querySelector('.wallet-balance').textContent = parseFloat(etherBalance).toFixed(2) + ' ETH';
+                } catch (error) {
+                    console.error('Error fetching balance:', error);
+                }
             }
         }
 
-        // Event listeners
-        document.getElementById('send-contribution').addEventListener('click', sendContribution);
-        
-        // Auto-connect wallet on page load
-        window.addEventListener('load', connectWallet);
+        // Update Ethereum status display
+        function updateEthereumStatus(connected, message) {
+            if (connected) {
+                ethereumStatus.className = 'ethereum-status connected';
+                ethereumStatus.innerHTML = `<i class="fas fa-check-circle"></i><span>${message}</span>`;
+            } else {
+                ethereumStatus.className = 'ethereum-status disconnected';
+                ethereumStatus.innerHTML = `<i class="fas fa-exclamation-circle"></i><span>${message}</span>`;
+            }
+        }
+
+        // Initialize the app when the page loads
+        window.addEventListener('load', initApp);
         
         // Listen for account changes
         if (window.ethereum) {
