@@ -83,6 +83,25 @@
             font-weight: bold;
         }
 
+        .connect-wallet-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .connect-wallet-btn:hover {
+            background: #e68900;
+            transform: translateY(-2px);
+        }
+
         .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -404,8 +423,11 @@
                 </div>
                 <div class="wallet-info">
                     <i class="fab fa-ethereum"></i>
-                    <span class="wallet-address">Connect Wallet</span>
+                    <span class="wallet-address">Not Connected</span>
                     <span class="wallet-balance">0 ETH</span>
+                    <button class="connect-wallet-btn" id="connect-wallet-btn">
+                        <i class="fas fa-plug"></i> Connect Wallet
+                    </button>
                 </div>
             </div>
         </div>
@@ -440,9 +462,9 @@
                 </div>
                 <button class="btn btn-success" id="send-contribution"><i class="fas fa-paper-plane"></i> Send Contribution</button>
                 
-                <div class="ethereum-status" id="ethereum-status">
+                <div class="ethereum-status disconnected" id="ethereum-status">
                     <i class="fas fa-exclamation-circle"></i>
-                    <span>Connect to Ethereum wallet</span>
+                    <span>Please connect your Ethereum wallet</span>
                 </div>
             </div>
 
@@ -533,6 +555,9 @@
         const sendContributionBtn = document.getElementById('send-contribution');
         const refreshBtn = document.getElementById('refresh-btn');
         const ethereumStatus = document.getElementById('ethereum-status');
+        const connectWalletBtn = document.getElementById('connect-wallet-btn');
+        const walletAddress = document.querySelector('.wallet-address');
+        const walletBalance = document.querySelector('.wallet-balance');
 
         // Ethereum Integration
         let web3;
@@ -544,7 +569,7 @@
             renderTransactions();
             populateRecipientSelect();
             setupEventListeners();
-            initEthereum();
+            checkEthereumAvailability();
         }
 
         // Render members list
@@ -626,6 +651,72 @@
             sendContributionBtn.addEventListener('click', sendContribution);
 
             refreshBtn.addEventListener('click', refreshData);
+
+            connectWalletBtn.addEventListener('click', connectWallet);
+        }
+
+        // Check if Ethereum is available
+        function checkEthereumAvailability() {
+            if (typeof window.ethereum !== 'undefined') {
+                web3 = new Web3(window.ethereum);
+                console.log('Ethereum wallet detected');
+                ethereumStatus.innerHTML = '<i class="fas fa-info-circle"></i><span>Click "Connect Wallet" to connect</span>';
+            } else {
+                console.log('No Ethereum wallet detected');
+                ethereumStatus.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>No Ethereum wallet detected. Please install MetaMask.</span>';
+                connectWalletBtn.disabled = true;
+                connectWalletBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Install MetaMask';
+            }
+        }
+
+        // Connect to Ethereum wallet
+        async function connectWallet() {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    // Request account access - THIS WILL TRIGGER THE PROMPT
+                    const accounts = await window.ethereum.request({ 
+                        method: 'eth_requestAccounts' 
+                    });
+                    
+                    userAccount = accounts[0];
+                    console.log('Connected account:', userAccount);
+                    
+                    // Update UI with wallet info
+                    walletAddress.textContent = 
+                        userAccount.substring(0, 6) + '...' + userAccount.substring(userAccount.length - 4);
+                    
+                    // Get account balance
+                    await updateWalletBalance();
+                    
+                    // Update status
+                    ethereumStatus.className = 'ethereum-status connected';
+                    ethereumStatus.innerHTML = '<i class="fas fa-check-circle"></i><span>Wallet connected successfully!</span>';
+                    
+                    // Update connect button
+                    connectWalletBtn.innerHTML = '<i class="fas fa-check"></i> Connected';
+                    connectWalletBtn.style.background = 'var(--success)';
+                    
+                } catch (error) {
+                    console.error('User denied account access:', error);
+                    ethereumStatus.className = 'ethereum-status disconnected';
+                    ethereumStatus.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>User denied wallet connection</span>';
+                }
+            } else {
+                alert('Please install MetaMask or another Ethereum wallet to use this feature!');
+            }
+        }
+
+        // Update wallet balance
+        async function updateWalletBalance() {
+            if (userAccount && web3) {
+                try {
+                    const balance = await web3.eth.getBalance(userAccount);
+                    const etherBalance = web3.utils.fromWei(balance, 'ether');
+                    walletBalance.textContent = parseFloat(etherBalance).toFixed(4) + ' ETH';
+                } catch (error) {
+                    console.error('Error fetching balance:', error);
+                }
+            }
         }
 
         // Add new member
@@ -747,79 +838,26 @@
             }, 1500);
         }
 
-        // Ethereum Integration Functions
-        function initEthereum() {
-            // Check if Web3 is available (MetaMask or other Ethereum wallet)
-            if (typeof window.ethereum !== 'undefined') {
-                web3 = new Web3(window.ethereum);
-                console.log('Web3 detected!');
-                
-                // Try to connect automatically
-                connectWallet();
-            } else {
-                console.log('No Web3 detected. Please install MetaMask.');
-                updateEthereumStatus(false, 'No Ethereum wallet detected. Please install MetaMask.');
-            }
-        }
-
-        // Connect to Ethereum wallet
-        async function connectWallet() {
-            if (window.ethereum) {
-                try {
-                    // Request account access
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    userAccount = accounts[0];
-                    
-                    // Update UI with wallet info
-                    document.querySelector('.wallet-address').textContent = 
-                        userAccount.substring(0, 5) + '...' + userAccount.substring(userAccount.length - 4);
-                    
-                    // Get account balance
-                    await updateWalletBalance();
-                    
-                    updateEthereumStatus(true, 'Ethereum network connected');
-                    
-                    console.log('Connected to account:', userAccount);
-                    
-                } catch (error) {
-                    console.error('User denied account access');
-                    updateEthereumStatus(false, 'Please connect your Ethereum wallet');
-                }
-            }
-        }
-
-        // Update wallet balance
-        async function updateWalletBalance() {
-            if (userAccount && web3) {
-                try {
-                    const balance = await web3.eth.getBalance(userAccount);
-                    const etherBalance = web3.utils.fromWei(balance, 'ether');
-                    document.querySelector('.wallet-balance').textContent = parseFloat(etherBalance).toFixed(2) + ' ETH';
-                } catch (error) {
-                    console.error('Error fetching balance:', error);
-                }
-            }
-        }
-
-        // Update Ethereum status display
-        function updateEthereumStatus(connected, message) {
-            if (connected) {
-                ethereumStatus.className = 'ethereum-status connected';
-                ethereumStatus.innerHTML = `<i class="fas fa-check-circle"></i><span>${message}</span>`;
-            } else {
-                ethereumStatus.className = 'ethereum-status disconnected';
-                ethereumStatus.innerHTML = `<i class="fas fa-exclamation-circle"></i><span>${message}</span>`;
-            }
-        }
-
         // Initialize the app when the page loads
         window.addEventListener('load', initApp);
         
         // Listen for account changes
         if (window.ethereum) {
             window.ethereum.on('accountsChanged', function (accounts) {
-                userAccount = accounts[0];
-                connectWallet();
+                if (accounts.length === 0) {
+                    // User disconnected their wallet
+                    userAccount = null;
+                    walletAddress.textContent = 'Not Connected';
+                    walletBalance.textContent = '0 ETH';
+                    ethereumStatus.className = 'ethereum-status disconnected';
+                    ethereumStatus.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Wallet disconnected</span>';
+                    connectWalletBtn.innerHTML = '<i class="fas fa-plug"></i> Connect Wallet';
+                    connectWalletBtn.style.background = '';
+                } else {
+                    // User switched accounts
+                    userAccount = accounts[0];
+                    connectWallet();
+                }
             });
         }
     </script>
