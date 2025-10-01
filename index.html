@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sacco Merry-Go-Round</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c5aa0;
+            --secondary: #4caf50;
+            --accent: #ff9800;
+            --light: #f5f7fa;
+            --dark: #333;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), #1a3a6e);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 10px 10px;
+            margin-bottom: 30px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--accent);
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+        }
+
+        .wallet-info {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .wallet-info i {
+            color: var(--accent);
+        }
+
+        .wallet-balance {
+            font-weight: bold;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            color: var(--accent);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: #1a3a6e;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .member-list {
+            list-style: none;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .member-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.3s ease;
+        }
+
+        .member-item:hover {
+            background: #f9f9f9;
+        }
+
+        .member-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .member-details h4 {
+            margin-bottom: 5px;
+        }
+
+        .member-details p {
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        .member-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-paid {
+            background: #e8f6ef;
+            color: var(--success);
+        }
+
+        .status-pending {
+            background: #fef9e7;
+            color: var(--accent);
+        }
+
+        .status-default {
+            background: #fbeeee;
+            color: var(--danger);
+        }
+
+        .transaction-history {
+            grid-column: 1 / -1;
+        }
+
+        .transaction-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .transaction-table th, .transaction-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .transaction-table th {
+            background: #f8f9fa;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .transaction-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .amount {
+            font-weight: bold;
+        }
+
+        .amount.positive {
+            color: var(--success);
+        }
+
+        .amount.negative {
+            color: var(--danger);
+        }
+
+        .ethereum-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            background: #f8f9fa;
+        }
+
+        .ethereum-status.connected {
+            background: #e8f6ef;
+            color: var(--success);
+        }
+
+        .ethereum-status.disconnected {
+            background: #fbeeee;
+            color: var(--danger);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 30px;
+            color: #777;
+            border-top: 1px solid #eee;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .wallet-info {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-piggy-bank"></i>
+                    <h1>Sacco Merry-Go-Round</h1>
+                </div>
+                <div class="wallet-info">
+                    <i class="fab fa-ethereum"></i>
+                    <span class="wallet-address">0x742...d35E</span>
+                    <span class="wallet-balance">2.45 ETH</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-users"></i> Group Members</h2>
+                    <button class="btn"><i class="fas fa-plus"></i> Add Member</button>
+                </div>
+                <ul class="member-list">
+                    <li class="member-item">
+                        <div class="member-info">
+                            <div class="member-avatar">JD</div>
+                            <div class="member-details">
+                                <h4>John Doe</h4>
+                                <p>Next payout: 15 Oct 2023</p>
+                            </div>
+                        </div>
+                        <span class="member-status status-paid">Paid</span>
+                    </li>
+                    <li class="member-item">
+                        <div class="member-info">
+                            <div class="member-avatar">AS</div>
+                            <div class="member-details">
+                                <h4>Alice Smith</h4>
+                                <p>Next payout: 22 Oct 2023</p>
+                            </div>
+                        </div>
+                        <span class="member-status status-pending">Pending</span>
+                    </li>
+                    <li class="member-item">
+                        <div class="member-info">
+                            <div class="member-avatar">RJ</div>
+                            <div class="member-details">
+                                <h4>Robert Johnson</h4>
+                                <p>Next payout: 29 Oct 2023</p>
+                            </div>
+                        </div>
+                        <span class="member-status status-default">Default</span>
+                    </li>
+                    <li class="member-item">
+                        <div class="member-info">
+                            <div class="member-avatar">MW</div>
+                            <div class="member-details">
+                                <h4>Maria Williams</h4>
+                                <p>Next payout: 5 Nov 2023</p>
+                            </div>
+                        </div>
+                        <span class="member-status status-paid">Paid</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-hand-holding-usd"></i> Make Contribution</h2>
+                </div>
+                <div class="form-group">
+                    <label for="amount">Amount (ETH)</label>
+                    <input type="number" id="amount" placeholder="0.1" step="0.01" min="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="recipient">Recipient</label>
+                    <select id="recipient">
+                        <option value="">Select a member</option>
+                        <option value="1">John Doe</option>
+                        <option value="2">Alice Smith</option>
+                        <option value="3">Robert Johnson</option>
+                        <option value="4">Maria Williams</option>
+                    </select>
+                </div>
+                <button class="btn btn-success" id="send-contribution"><i class="fas fa-paper-plane"></i> Send Contribution</button>
+                
+                <div class="ethereum-status connected">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Ethereum network connected</span>
+                </div>
+            </div>
+
+            <div class="card transaction-history">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-history"></i> Transaction History</h2>
+                    <button class="btn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                </div>
+                <table class="transaction-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>10 Oct 2023</td>
+                            <td>Monthly Contribution</td>
+                            <td>John Doe</td>
+                            <td>Alice Smith</td>
+                            <td class="amount positive">+0.1 ETH</td>
+                            <td><span class="member-status status-paid">Completed</span></td>
+                        </tr>
+                        <tr>
+                            <td>03 Oct 2023</td>
+                            <td>Monthly Contribution</td>
+                            <td>Maria Williams</td>
+                            <td>John Doe</td>
+                            <td class="amount positive">+0.1 ETH</td>
+                            <td><span class="member-status status-paid">Completed</span></td>
+                        </tr>
+                        <tr>
+                            <td>26 Sep 2023</td>
+                            <td>Monthly Contribution</td>
+                            <td>Robert Johnson</td>
+                            <td>Maria Williams</td>
+                            <td class="amount negative">-0.1 ETH</td>
+                            <td><span class="member-status status-default">Failed</span></td>
+                        </tr>
+                        <tr>
+                            <td>19 Sep 2023</td>
+                            <td>Monthly Contribution</td>
+                            <td>Alice Smith</td>
+                            <td>Robert Johnson</td>
+                            <td class="amount positive">+0.1 ETH</td>
+                            <td><span class="member-status status-paid">Completed</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 Sacco Merry-Go-Round App. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Ethereum Integration
+        let web3;
+        let userAccount;
+
+        // Check if Web3 is available (MetaMask or other Ethereum wallet)
+        if (typeof window.ethereum !== 'undefined') {
+            web3 = new Web3(window.ethereum);
+            console.log('Web3 detected!');
+        } else {
+            console.log('No Web3 detected. Please install MetaMask.');
+            document.querySelector('.ethereum-status').className = 'ethereum-status disconnected';
+            document.querySelector('.ethereum-status').innerHTML = '<i class="fas fa-exclamation-circle"></i><span>No Ethereum wallet detected</span>';
+        }
+
+        // Connect to Ethereum wallet
+        async function connectWallet() {
+            if (window.ethereum) {
+                try {
+                    // Request account access
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    userAccount = accounts[0];
+                    
+                    // Update UI with wallet info
+                    document.querySelector('.wallet-address').textContent = 
+                        userAccount.substring(0, 5) + '...' + userAccount.substring(userAccount.length - 4);
+                    
+                    // Get account balance
+                    const balance = await web3.eth.getBalance(userAccount);
+                    const etherBalance = web3.utils.fromWei(balance, 'ether');
+                    document.querySelector('.wallet-balance').textContent = parseFloat(etherBalance).toFixed(2) + ' ETH';
+                    
+                    console.log('Connected to account:', userAccount);
+                    
+                } catch (error) {
+                    console.error('User denied account access');
+                }
+            }
+        }
+
+        // Send transaction function
+        async function sendContribution() {
+            const amount = document.getElementById('amount').value;
+            const recipient = document.getElementById('recipient').value;
+            
+            if (!amount || !recipient) {
+                alert('Please enter amount and select recipient');
+                return;
+            }
+            
+            if (!userAccount) {
+                alert('Please connect your wallet first');
+                return;
+            }
+            
+            // In a real app, you would have the recipient's Ethereum address
+            // For demo purposes, we'll use a placeholder
+            const recipientAddress = '0x742d35Ef4f6B1990d35E...'; 
+            
+            try {
+                // Convert amount to wei
+                const amountInWei = web3.utils.toWei(amount, 'ether');
+                
+                // Send transaction
+                const transaction = await web3.eth.sendTransaction({
+                    from: userAccount,
+                    to: recipientAddress,
+                    value: amountInWei
+                });
+                
+                console.log('Transaction successful:', transaction);
+                alert('Contribution sent successfully!');
+                
+                // Reset form
+                document.getElementById('amount').value = '';
+                document.getElementById('recipient').value = '';
+                
+            } catch (error) {
+                console.error('Transaction failed:', error);
+                alert('Transaction failed. Please try again.');
+            }
+        }
+
+        // Event listeners
+        document.getElementById('send-contribution').addEventListener('click', sendContribution);
+        
+        // Auto-connect wallet on page load
+        window.addEventListener('load', connectWallet);
+        
+        // Listen for account changes
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', function (accounts) {
+                userAccount = accounts[0];
+                connectWallet();
+            });
+        }
+    </script>
+</body>
+</html>
